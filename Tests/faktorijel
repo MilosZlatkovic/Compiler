@@ -1,0 +1,10 @@
+begin
+	int faktorijel(int n)
+	    begin
+		if n == 0 then:
+		   return 1	
+		else:
+		   return n * faktorijel(n - 1)
+	    end;
+	print(faktorijel(6))
+end.

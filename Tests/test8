@@ -1,0 +1,13 @@
+begin
+	int izracunaj(int a, int b, int c)
+	    begin		
+		int sum = a + b + oduzmi(a,b);	
+		return sum
+	    end;
+	int oduzmi(int a, int b)
+	    begin
+		int sum = a - b;
+		return sum
+	    end;
+	print(izracunaj(5,4,2))
+end.

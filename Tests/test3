@@ -1,0 +1,8 @@
+begin
+	print("Enter the number: ");
+	read(i);
+	if i > 10 then:
+	       print("The number is greater than 10")
+	else:
+		print("The number is not greater than 10")
+end.

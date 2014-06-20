@@ -1,0 +1,6 @@
+begin
+	print("The value of the expression "3 + 0xA1 mod 5" is: ");
+	print(3 + 0xA1 mod 5);
+	print("The value of the expression "3 - 6/0"is: ");
+	print(3 - 6/0)
+end.

@@ -1,0 +1,13 @@
+begin
+	int saberi(int a, int b)
+	    begin		
+		int sum = a + b;	
+		return sum
+	    end;
+	int oduzmi(int a, int b)
+	    begin
+		int sum = a - b;
+		return sum
+	    end;
+	print(saberi(2,3) + oduzmi(6,1))
+end.

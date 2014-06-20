@@ -1,0 +1,4 @@
+begin
+	int i = 3 * (4 + 2);
+	print(i)
+end.

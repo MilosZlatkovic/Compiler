@@ -1,0 +1,7 @@
+begin
+	int i;
+	for i = -10 to 10 do:
+	    begin
+		print(i)
+	    end
+end.

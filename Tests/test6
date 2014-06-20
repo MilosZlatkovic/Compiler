@@ -1,0 +1,11 @@
+begin
+	int number = 9;
+	int sum = 0;
+	repeat
+		sum = sum + number;
+		number = number - 1;
+		print(number)
+	until number != 0;
+
+	print(sum)
+end.

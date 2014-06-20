@@ -1,0 +1,11 @@
+begin
+	int fibonaci(int n)
+	    begin
+		if n == 0 then:
+		   return 0;
+		if n == 1 then:
+		   return 1;
+		return fibonaci(n - 1) + fibonaci(n - 2)
+	    end;	
+	print(fibonaci(6))
+end.

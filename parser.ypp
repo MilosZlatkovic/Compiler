@@ -1,0 +1,127 @@
+%{
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "expression.hpp"
+#include "command.hpp"
+#include "function.hpp"
+#include <map>
+#include <vector>
+#include <stack>
+
+#define YYDEBUG 1
+
+using namespace std;
+
+void yyerror(string s)
+{
+   cerr << s << endl;
+   exit(EXIT_FAILURE);
+}
+
+map<string, Function*> functions;
+int return_value;
+stack<map<string, int> > local_vars;
+int break_com = 0;
+
+extern int yylex();
+
+%}
+
+%union
+{
+   int d;
+   string *s;
+   Expression *exp;
+   Command *n;
+   vector<Expression *> *i;
+   vector<Argument *> *arg;
+   vector<Command *> *vec;
+}
+
+%token mod_token begin_token end_token print_token if_token then_token else_token while_token do_token read_token int_token return_token
+%token repeat_token until_token to_token for_token
+%token <d> num
+%token <s> id text_token
+
+// to fix If-Else Ambiguity
+%nonassoc ifx
+%nonassoc else_token
+
+%left eq_token notEq_token
+%left '<' '>'
+%left '+' '-'
+%left '*' '/'
+%left mod_token 
+
+%type <arg> Arguments
+%type <i> CallArguments
+%type <exp> E
+%type <n> Block Command
+%type <vec> ArrayOfCommands
+%%
+
+Programe: Block '.' { $1 -> Run(); }
+;
+
+Block: begin_token ArrayOfCommands end_token { $$ = new BlockCommand($2); }
+;
+
+ArrayOfCommands: ArrayOfCommands ';' Command { $$ = $1; $$ -> push_back($3); }
+| Command { $$ = new vector<Command *>(); $$ -> push_back($1); }
+;
+
+Command: print_token '(' text_token  ')' {$$ = new PrintStringCommand(*$3); delete $3;  }
+| read_token '(' id ')' { $$ = new ReadCommand(*$3); }
+| print_token '(' E ')'  { $$ = new PrintExpressionCommand($3); }
+| int_token id { $$ = new DeclarationCommand(*$2, new Const(0)); delete $2; }
+| int_token id '=' E { $$ = new DeclarationCommand(*$2, $4); delete $2; }
+| id '=' E { $$ = new AssignmentCommand(*$1, $3); delete $1; }
+| if_token E then_token Command %prec ifx { $$ = new IfThenCommand($2, $4); }
+| if_token E then_token Command else_token Command { $$ = new IfThenElseCommand($2, $4, $6); }
+| while_token E do_token Block { $$ = new WhileCommand($2, $4);  }
+| repeat_token ArrayOfCommands until_token E { $$ = new RepeatUntilCommand($2, $4);  }
+| for_token id '=' num to_token num do_token Block { $$ = new ForCommand(*$2, $4, $6, $8); delete $2; }
+| int_token id '(' Arguments ')' Block { $$ = new NewFunctionDeclaration(*$2, $4, $6); delete $2; }
+| return_token E { $$ = new ReturnCommand($2); }
+; 
+
+E: E '+' E { $$ = new Add($1, $3); }
+| E mod_token E { $$ = new Mod($1, $3); }
+| E '*' E { $$ = new Mul($1, $3); }
+| E '-' E { $$ = new Sub($1, $3); }
+| E '/' E { $$ = new Div($1, $3); }
+| '-' E { $$ = new Opp($2);  }
+| '(' E ')' { $$ = $2; }
+| E '>' E { $$ = new GT($1, $3); }
+| E '<' E { $$ = new LT($1, $3); }
+| E eq_token E { $$ = new Eq($1, $3); }
+| E notEq_token E { $$ = new NotEq($1, $3); }
+| id { $$ = new Var(*$1); delete $1;  }
+| num { $$ = new Const($1); }
+| id '(' CallArguments ')' { $$ = new FunctionCall(*$1, $3); delete $1; }
+;
+
+Arguments: Arguments ',' int_token id { $$ = $1;
+	   	     	 	   	$$ -> push_back(new Argument(*$4, 0));
+					delete $4; }
+| int_token id { $$ = new vector<Argument *>();
+  	    	 $$ -> push_back(new Argument(*$2, 0));
+		 delete $2; }
+;
+
+CallArguments: CallArguments ',' E { $$ = $1;
+	       		     	     $$ -> push_back($3); }
+| E { $$ = new vector<Expression *>();
+      $$ -> push_back($1); }
+;
+
+%%
+
+int main()
+{
+   //yydebug = 1;
+   yyparse();
+   return 0;
+}
